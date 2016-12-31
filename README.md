@@ -10,4 +10,4 @@ Example:
 
 `>fentopng rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1`
 
-![http://imgur.com/wilZBJT.png](tempBoard.png)
+![tempBoard.png](http://imgur.com/wilZBJT.png)
