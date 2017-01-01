@@ -4,6 +4,7 @@ import cairosvg
 import chess
 import chess.svg
 import discord
+import io
 import logging
 
 client = discord.Client()
@@ -22,13 +23,12 @@ def boardToPng(board):
     
                 checkHighlight = square # if the king is in check, highlight
     
-    with open("temp/tempBoard.svg", 'w') as boardFile: # write svg to tempBoard
-        boardFile.write(chess.svg.board(board=board, 
-                                        coordinates=False,
-                                        check=checkHighlight))
-    
-    return cairosvg.svg2png(url="temp/tempBoard.svg") # render svg to a 400x400 png data
+    svgString = chess.svg.board(board=board, 
+                                coordinates=False,
+                                check=checkHighlight)
 
+    return cairosvg.svg2png(bytestring=svgString.encode('utf-8'))
+    
 @client.event
 async def on_message(message):
     commandArray = message.content.split(" ", 1)
@@ -47,13 +47,11 @@ async def on_message(message):
     if command == ">fentopng":
         try:
             board = chess.Board(tail) # gen board from fen
-
-            pngData = boardToPng(board) # generate the image
-
-            with open("temp/tempBoard.png", 'wb') as imgFile: # write data to file
-                imgFile.write(pngData)
-
-            await client.send_file(message.channel, "temp/tempBoard.png") # send it
+            pngData = boardToPng(board)
+            with io.BytesIO(pngData) as pngBytes:
+                await client.send_file(message.channel,
+                                       io.BytesIO(pngData),
+                                       filename="board.png")
         except ValueError: # chess.Board() throws ValueError if fen is invalid
             await client.send_message(message.channel, "Invalid FEN")
 
